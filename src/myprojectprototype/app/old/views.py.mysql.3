@@ -1,0 +1,28 @@
+from flask import Flask, redirect, render_template, session, url_for
+from flaskext.mysql import MySQL
+#from seproject_group18.app import app
+app = Flask(__name__)
+app.config['MYSQL_DATABASE_HOST'] = 'ucdgroup18.ck04mjz0uhn8.us-west-2.rds.amazonaws.com'
+app.config['MYSQL_DATABASE_USER'] = 'root'
+app.config['MYSQL_DATABASE_PASSWORD'] = '1234qwer'
+app.config['MYSQL_DATABASE_DB'] = 'bike'
+mysql = MySQL(app)
+#app = Flask(__name__)
+from systeminfo import sysinfo
+@app.route('/') 
+def index(): 
+        conn = mysql.connect()
+        cur = conn.cursor()
+        cur.execute('''SELECT Address FROM BikeStation''')
+        rv = cur.fetchall()
+        returnDict = {}
+        returnDict['user'] = rv[0]    # Feel free to put your name here! 
+        returnDict['title'] = rv[1]
+        returnDict['sysinfo'] = sysinfo.get_platform_info()
+        return render_template("index.html", **returnDict)
+        #return str(rv)
+
+'''
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
+'''

@@ -1,0 +1,29 @@
+1. How to config sub-net to allow EC2 instance connect RDS of EC2: 
+Since you are using a VPC, this is how it should be configured in order to accept connections from your sub-net only:
+
+select VPC Security Group used by your db instance
+add a new rule to allow all ips from your private sub-net on port 3306
+
+ex: Rule INBOUND 3306 (MYSQL) 172.33.11.0/24
+use mysql workbench tcp/ssh and it will work (follow AndrewSmiley answer).
+
+2. pre-install mysql-python
+pip install mysql-python
+or
+sudo apt-get install python3-mysqldb
+
+3.sudo apt-get install python3-dev libmysqlclient-dev
+  pip install mysqlclient
+
+4. sudo pip install flask-mysql
+
+5. insall charts.js
+sudo apt-get install npm
+#sudo npm install -g http-server
+sudo npm install chart.js --save
+
+6. install linear regression training module
+sudo pip install statsmodels
+
+7. how to install sqlalchemy
+sudo pip install sqlalchemy

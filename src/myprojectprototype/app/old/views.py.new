@@ -1,0 +1,14 @@
+from flask import Flask, redirect, render_template, session, url_for
+from flaskext.mysql import MySQL
+app = Flask(__name__)
+app.config['MYSQL_HOST'] = 'ucdgroup18.ck04mjz0uhn8.us-west-2.rds.amazonaws.com'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = '1234qwer'
+app.config['MYSQL_DB'] = 'bike'
+mysql = MySQL(app)
+@app.route('/') 
+def index(): 
+        cur = mysql.connection.cursor()
+        cur.execute('''SELECT Address FROM BikeStation''')
+        rv = cur.fetchall()
+        return str(rv)

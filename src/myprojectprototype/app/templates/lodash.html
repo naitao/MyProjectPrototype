@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Simple Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+  </head>
+<h1> Hellow,world! </h1>
+<p id="demo"> </p>
+<script>
+	document.getElementById("demo").innerHTML = "This is old method to show text";
+	document.write(5 + 6);
+	document.write("<br>");
+	for (var i = 1; i<5; i++){
+		document.write(i);
+		document.write("<br>");
+	}
+	document.write("<br>");
+	document.write("<br>");
+/*
+	Array.apply(null, Array(5)).forEach(function(){
+		document.write("h");
+		document.write("<br>");
+		
+	});
+*/
+	_.times(5, function(){
+		document.write("X");
+		document.write("<br>");
+	});
+</script>
+</html>

@@ -1,0 +1,15 @@
+from flask import Flask
+from flaskext.mysql import MySQL
+app = Flask(__name__)
+app.config['MYSQL_DATABASE_HOST'] = 'ucdgroup18.ck04mjz0uhn8.us-west-2.rds.amazonaws.com'
+app.config['MYSQL_DATABASE_USER'] = 'root'
+app.config['MYSQL_DATABASE_PASSWORD'] = '1234qwer'
+app.config['MYSQL_DATABASE_DB'] = 'bike'
+mysql = MySQL(app)
+conn = mysql.connect()
+cur = conn.cursor()
+cur.execute('''SELECT Address FROM BikeStation''')
+rv = cur.fetchall()
+from seproject_group18.app import views
+
+view.index()

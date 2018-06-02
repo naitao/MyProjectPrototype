@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Simple Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/style.css/">
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+}
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 95%;
+        margin: 0;
+        padding: 0;
+} </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="chart_buttom_div">Hello,world!</div>
+    <div id="chart_div"></div>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/0.10.0/lodash.min.js"></script>
+    <script type=text/javascript>
+	google.load("visualization", "1", {packages:["columnchart"]});
+  	$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+      var map;
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: 53.3481, lng: -6.2593},
+          zoom: 14
+	});
+	showStationMarkers();
+	}
+
+      function showStationMarkers() {
+        var jqxhr = $.getJSON($SCRIPT_ROOT + "/stations", function(data) {
+            var stations = data.stations;
+            console.log('stations', stations);
+            // draw markers
+	    _.forEach(stations, function(station) {
+		var infoWindow = new google.maps.InfoWindow;
+                var infowincontent = document.createElement('div');
+                var strong = document.createElement('strong');
+                var mytitle = '';
+                strong.textContent = "Station no. " + station.Number;
+                mytitle = "Station no. " + station.Number;
+                infowincontent.appendChild(strong);
+                infowincontent.appendChild(document.createElement('br'));
+
+                var strong1 = document.createElement('strong');
+                strong1.textContent = "Station Name: " + station.Name;
+                mytitle = mytitle + "\nStation Name: " + station.Name;
+                infowincontent.appendChild(strong1);
+                infowincontent.appendChild(document.createElement('br'));
+
+                mytitle = mytitle + "\nAvailable Bikes: " + station.Available_bikes;
+                var text2 = document.createElement('text');
+                text2.textContent = "Full address: " + station.Address;
+                mytitle = mytitle + "\nFull address: " + station.Address;
+
+		var n = station.Last_update;
+		console.log(n);
+                n = n.replace(/'/, "");
+		n = n.replace(/'/, "");
+                var d = new Date(Number(n));
+                mytitle = mytitle + "\nLast Update: " + d.toString();
+
+                infowincontent.appendChild(text2);
+                infowincontent.appendChild(document.createElement('br'));
+        	//console.log(station.name, station.number);
+        	var marker = new google.maps.Marker({
+          		position : {
+             			lat: station.Latitude,
+             			lng: station.Longitude
+          			},
+          		map: map,
+			label: station.Number.toString(),
+          		title: mytitle,
+          		station_number: station.Number,
+			infowincontent: infowincontent
+		});
+                google.maps.event.addListener(marker, 'click', function() {
+		        //google.load("visualization", "1", {packages:['corechart']});
+		        //google.setOnLoadCallback(function() { drawInfoWindowChart(this); });
+			drawInfoWindowChart(marker);
+			showNewChart();
+			//infoWindow.setContent(this.infowincontent);
+                 	//infoWindow.open(map, this);
+	                //alert(maker.station_number);
+			//showMe(this);
+		});
+	    })
+       	})
+        .fail(function(){
+     	    console.log("error");
+   	})
+      }
+
+      function showNewChart(){
+	  document.getElementById('chart_buttom_div').style.display = "inline";
+	  document.getElementById('map').style.height = "400px";
+	
+	  //document.getElementById("weatherId").innerHTML = weatherInfo;
+	}
+
+      function showMe(obj){
+	var infoWindow = new google.maps.InfoWindow();
+	//infoWindow.setContent(obj.infowincontent);
+	infoWindow.setContent("hello!!");
+	infoWindow.open(map, obj);
+	console.log("hello,world: ", obj.station_number);
+      }
+
+      function drawInfoWindowChart(marker){
+	console.log("hello,world: ", marker.station_number);
+
+	var jqxhr = $.getJSON($SCRIPT_ROOT + "/occupancy/" + marker.station_number,
+			function(data) {
+		data = JSON.parse(data.data);
+		console.log(data);
+		
+		var node = document.createElement('div');
+		//var newContent = document.createTextNode("Hi there and greetings!");
+		//var node = document.getElementById('chart_div');
+		var infowindow = new google.maps.InfoWindow();
+		var chart = new google.visualization.ColumnChart(node);
+		//var chart = new google.visualization.SteppedAreaChart(node);
+		var chart_data = new google.visualization.DataTable();
+		chart_data.addColumn('string', 'Time of Day');
+		chart_data.addColumn('number', 'Used Bikes');
+                var count = 0;
+		_.forEach(data, function(row){
+			var timeStamp = '';
+			if (count % 5 == 0)
+				timeStamp = row[0].substring(0,10);
+			chart_data.addRow([timeStamp, Math.ceil(row[1])]);
+			count++;
+		})
+		//console.log(chart_data);
+		var options = {
+				legend:{ position: 'top'},
+				colors: ['#9575cd',
+					'#33ac71'
+					],
+				title: 'Bike Usage Condition',
+               			width:600,
+               			height:200
+				};
+		chart.draw(chart_data, options);
+		infowindow.setContent(node);
+		infowindow.open(marker.getMap(), marker);
+		//infowindow.open(map, obj);
+	}).fail(function() {
+		console.log("error");
+	})
+    }
+	google.charts.load('current', {
+                    'packages': ['table', 'map', 'corechart']
+                });
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD-JwqLtuvHobOKXLxrkkn4I5XcgbcB8AE&libraries=visualization&callback=initMap"
+    async defer></script>
+  </body>
+</html>
